@@ -129,7 +129,8 @@ DROP TABLE IF EXISTS Recursos;
 CREATE TABLE Recursos (
 	id_recurso INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     id_tipo INT UNSIGNED NOT NULL,
-    id_problema INT UNSIGNED NULL
+    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- Nota, Modificar MER y MR para remplazar fk a ENUM
+    problema ENUM ('OK', 'AVERIADO', 'MANTENIMIENTO') NOT NULL DEFAULT 'OK'
 );
 
 DROP TABLE IF EXISTS RecursosExternos;
@@ -146,12 +147,6 @@ CREATE TABLE RecursosInternos (
     id_espacio INT UNSIGNED NULL
 );
 
-DROP TABLE IF EXISTS ProblemasDeRecursos;
-CREATE TABLE ProblemasDeRecursos (
-	id_recurso_interno INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    nombre VARCHAR(50) NOT NULL
-);
-
 
 
 -- -- -- -- RESTRICCIONES DE CLAVES FORANEAS
@@ -165,8 +160,3 @@ INSERT INTO TiposEspacios (nombre) VALUES
 	('Laboratorio de Quimica'),
 	('Laboratorio de Fisica'),
 	('Laboratorio de Mantenimiento');
-    
-INSERT INTO ProblemasDeRecursos (nombre) VALUES 
-	('Averiado'), 
-	('En Mantenimiento'), 
-	('En Funcionamiento');

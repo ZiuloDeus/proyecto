@@ -1,0 +1,18 @@
+CREATE DATABASE proyecto CHARACTER SET utf16le COLLATE utf16_spanish_ci;
+
+-- TABLAS
+DROP TABLE Usuario;
+CREATE TABLE Usuario (
+	id_usuario INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    ci VARCHAR(8) UNIQUE,
+    apellido VARCHAR(30),
+    contrasena VARCHAR(255),
+    email VARCHAR(50)
+);
+
+DROP TABLE Alumno;
+CREATE TABLE Alumno (
+	id_alumno INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    id_usuario INT UNSIGNED NOT NULL,
+    id_usuario INT UNSIGNED NOT NULL,
+);

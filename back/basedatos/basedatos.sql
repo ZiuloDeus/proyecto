@@ -1,6 +1,6 @@
--- DROP DATABASE IF EXISTS proyecto_itsp;
--- CREATE DATABASE proyecto_itsp CHARACTER SET utf16 COLLATE utf16_spanish_ci;
--- USE proyecto_itsp;
+DROP DATABASE IF EXISTS proyecto_itsp;
+CREATE DATABASE proyecto_itsp CHARACTER SET utf16 COLLATE utf16_spanish_ci;
+USE proyecto_itsp;
 
 
 
@@ -153,6 +153,8 @@ CREATE TABLE RecursosInternos (
 ALTER TABLE Alumnos ADD CONSTRAINT fk__alumnos_usuarios FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE;
 ALTER TABLE Adscritos ADD CONSTRAINT fk__adscritos_usuarios FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE;
 ALTER TABLE Profesores ADD CONSTRAINT fk__profesores_usuarios FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE;
+ALTER TABLE Profesores ADD CONSTRAINT fk__profesores_usuarios FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE;
+
 
 -- -- -- -- DATOS
 INSERT INTO TiposEspacios (nombre) VALUES 

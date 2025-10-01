@@ -1,8 +1,10 @@
-DROP DATABASE IF EXISTS proyecto_itsp;
-CREATE DATABASE proyecto_itsp CHARACTER SET utf16 COLLATE utf16_spanish_ci;
-USE proyecto_itsp;
+-- DROP DATABASE IF EXISTS proyecto_itsp;
+-- CREATE DATABASE proyecto_itsp CHARACTER SET utf16 COLLATE utf16_spanish_ci;
+-- USE proyecto_itsp;
 
 -- -- -- -- TABLAS - USUARIOS
+
+-- Datos de usuario base, compartido entre usuarios especificos
 DROP TABLE IF EXISTS Usuarios;
 CREATE TABLE Usuarios (
 	id_usuario INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -12,6 +14,7 @@ CREATE TABLE Usuarios (
     email VARCHAR(50) NOT NULL
 );
 
+-- Usuario especifico, categorizacion de la tabla Usuario
 DROP TABLE IF EXISTS Alumnos;
 CREATE TABLE Alumnos (
 	id_alumno INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -20,12 +23,14 @@ CREATE TABLE Alumnos (
     telefono_tutor VARCHAR(12) NOT NULL
 );
 
+-- Usuario especifico, categorizacion de la tabla Usuario
 DROP TABLE IF EXISTS Adscritos;
 CREATE TABLE Adscritos (
 	id_adscrito INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     id_usuario INT UNSIGNED NOT NULL
 );
 
+-- Usuario especifico, categorizacion de la tabla Usuario
 DROP TABLE IF EXISTS Profesores;
 CREATE TABLE Profesores (
 	id_profesor INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -33,12 +38,14 @@ CREATE TABLE Profesores (
 );
 
 -- -- -- -- TABLAS - CLASES
+-- Informacion de una materia, Ejemplo: Programacion, Ciberseguridad
 DROP TABLE IF EXISTS Materias;
 CREATE TABLE Materias (
 	id_materia INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     nombre VARCHAR(30) NOT NULL
 );
 
+-- Representa un lapso de tiempo en un dia dia cualquiera, Ejemplo: Primera, Segunda, etc.
 DROP TABLE IF EXISTS Periodos;
 CREATE TABLE Periodos (
 	id_periodo INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -47,12 +54,14 @@ CREATE TABLE Periodos (
     hora_salida TIMESTAMP NOT NULL
 );
 
+-- Representa un dia de la semana, Ejemplo: Lunes, Martes, Miércoles, etc.
 DROP TABLE IF EXISTS Dias;
 CREATE TABLE Dias (
 	id_dia INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     nombre VARCHAR(10) NOT NULL
 );
 
+-- Representa un periodo relacionado a un dia, Ejemplo: Lunes a primera, Lunes a segunda, Martes a primera, etc.
 DROP TABLE IF EXISTS Horas;
 CREATE TABLE Horas (
 	id_hora INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -60,6 +69,7 @@ CREATE TABLE Horas (
     id_dia INT UNSIGNED NOT NULL
 );
 
+-- Representa la relaciones entre un Grupo y una Hora. Ejemplo: 3MD a Primera, 3MD a Segunda.
 DROP TABLE IF EXISTS Modulos;
 CREATE TABLE Modulos (
 	id_hora INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -67,14 +77,16 @@ CREATE TABLE Modulos (
     id_dia INT UNSIGNED NOT NULL
 );
 
+-- Representa un grupo. Ejemplo: 3MD
 DROP TABLE IF EXISTS Grupos;
 CREATE TABLE Grupos (
 	id_grupo INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     id_adscrito INT UNSIGNED NULL, -- puede quedar NULL si se borra adscrito
-    grado INT UNSIGNED NOT NULL,
-    nombre VARCHAR(5)
+    grado INT UNSIGNED NOT NULL, -- Ejemplo: 1 - Primero, 2 - Segundo, 3 - Tercero
+    nombre VARCHAR(5) -- Ejemplo: MD, MA, etc.
 );
 
+-- Representa la relacion de Profesor (Enseña) Materia
 DROP TABLE IF EXISTS Clases;
 CREATE TABLE Clases (
 	id_clase INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -83,33 +95,39 @@ CREATE TABLE Clases (
 );
 
 -- -- -- -- TABLAS - ESPACIOS
+-- Representa un espacio de la institucion, Ejemplo: Aula, Salon, Laboratorio de Quimica, Laboratorio de Fisica, etc.
 DROP TABLE IF EXISTS Espacios;
 CREATE TABLE Espacios (
 	id_espacio INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    id_tipo INT UNSIGNED NOT NULL,
-    numero INT UNSIGNED NULL
+    id_tipo INT UNSIGNED NOT NULL, -- Ejemplo: Id de la entrada 'Salon' o 'Aula'
+    numero INT UNSIGNED NULL -- Ejemplo: 1 (para Aula 1, o Salon 1)
 );
 
+-- Contiene los tipos de espacios
 DROP TABLE IF EXISTS TiposEspacios;
 CREATE TABLE TiposEspacios (
 	id_tipo INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    nombre VARCHAR(50) UNIQUE
+    nombre VARCHAR(50) UNIQUE -- Ejemplo: 'Salon' o 'Aula'
 );
 
+-- Contiene informacion de la reserva de espacios creadas por profesores
 DROP TABLE IF EXISTS ReservasDeEspacios;
 CREATE TABLE ReservasDeEspacios (
 	id_reserva INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     id_profesor INT UNSIGNED NULL, -- puede quedar NULL si se borra profesor
     id_espacio INT UNSIGNED NOT NULL,
+    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- Nota, Modificar MER y MR para remplazar fk a TIMESTAMP
     fechaInicio DATETIME NOT NULL,
     fechaFinal DATETIME NOT NULL
 );
 
 -- -- -- -- TABLAS - RECURSOS
+-- Tabla base la cual contiene columnas compartidas para categorizar
 DROP TABLE IF EXISTS Recursos;
 CREATE TABLE Recursos (
 	id_recurso INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     id_tipo INT UNSIGNED NOT NULL,
+    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- Nota, Modificar MER y MR para remplazar fk a ENUM
     problema ENUM ('OK', 'AVERIADO', 'MANTENIMIENTO') NOT NULL DEFAULT 'OK'
 );
 

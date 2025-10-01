@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS proyecto_itsp;
-CREATE DATABASE proyecto_itsp CHARACTER SET utf16 COLLATE utf16_spanish_ci;
-USE proyecto_itsp;
+-- DROP DATABASE IF EXISTS proyecto_itsp;
+-- CREATE DATABASE proyecto_itsp CHARACTER SET utf16 COLLATE utf16_spanish_ci;
+-- USE proyecto_itsp;
 
 
 
@@ -8,7 +8,7 @@ USE proyecto_itsp;
 -- -- -- -- TABLAS - USUARIOS
 -- Datos de usuario base, compartido entre usuarios especificos
 DROP TABLE IF EXISTS Usuarios;
-CREATE TABLE Usuario (
+CREATE TABLE Usuarios (
 	id_usuario INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     ci VARCHAR(8) UNIQUE NOT NULL,
     apellido VARCHAR(30) NOT NULL,
@@ -150,7 +150,9 @@ CREATE TABLE RecursosInternos (
 
 
 -- -- -- -- RESTRICCIONES DE CLAVES FORANEAS
-
+ALTER TABLE Alumnos ADD CONSTRAINT fk__alumnos_usuarios FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE;
+ALTER TABLE Adscritos ADD CONSTRAINT fk__adscritos_usuarios FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE;
+ALTER TABLE Profesores ADD CONSTRAINT fk__profesores_usuarios FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE;
 
 -- -- -- -- DATOS
 INSERT INTO TiposEspacios (nombre) VALUES 

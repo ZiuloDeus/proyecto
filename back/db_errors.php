@@ -52,6 +52,11 @@ class UnError
     {
         return new UnError(TipoError::not_found, ["que" => $queEntidadNoSeEncontro], "La identificacion proporcionada para '". $queEntidadNoSeEncontro. "' no es valida.");
     }
+
+    public static function contrasena_incorrecta() : UnError
+    {
+        return new UnError(TipoError::contrasena_incorrecta, null, "La contrasena es incorrecta.");
+    }
 }
 
 enum TipoError : string
@@ -64,5 +69,6 @@ enum TipoError : string
     case duplicate_entry = "duplicate_entry";
     case not_found = "not_found";
     case identificacion_invalida = "identificacion_invalida";
+    case contrasena_incorrecta = "contrasena_incorrecta";
 }
 ?>

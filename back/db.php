@@ -1,5 +1,4 @@
 <?php
-
 function conectarBd() : ?mysqli
 {
     $servername = "localhost"; // Or your database host

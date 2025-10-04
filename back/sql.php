@@ -33,18 +33,18 @@ abstract class SQL
 		return $_values;
 	}
 
-	public static function query(mysqli $con, string $query, string $types, ...$values) : mysqli_stmt|ErrorSql
+	public static function query(mysqli $con, string $query, string $types, ...$values) : mysqli_stmt|UnError
 	{
 		$stmt = $con->prepare($query);
-		if(!$stmt) return ErrorSql::prepare();
+		if(!$stmt) return UnError::prepare();
 
 		$unblobedValues = self::replaceBlobsValuesWithNull($types, $values);
-		if(!$stmt->bind_param($types, ...$unblobedValues)) return ErrorSql::bind_param();
+		if(!$stmt->bind_param($types, ...$unblobedValues)) return UnError::bind_param();
 
 		$blobEntries = self::getBlobEntries($types, $values);
 		foreach($blobEntries as $blobIndex => $blob)
 		{
-			if(!$stmt->send_long_data($blobIndex, $blob)) return ErrorSql::send_long_data();
+			if(!$stmt->send_long_data($blobIndex, $blob)) return UnError::send_long_data();
 		}
 
 		if(!$stmt->execute())
@@ -55,26 +55,26 @@ abstract class SQL
 				$valorRepetido = $matches[1];
 				$nombreColumnaRepetida = $matches[2];
 
-				return ErrorSql::duplicate_entry($nombreColumnaRepetida, $valorRepetido);
+				return UnError::duplicate_entry($nombreColumnaRepetida, $valorRepetido);
 			}
 
-			return ErrorSql::execute();
+			return UnError::execute();
 		}
 		return $stmt;
 	}
 
-	public static function valueQuery(mysqli $con, string $query, string $types, ...$values) : mysqli_result|ErrorSql
+	public static function valueQuery(mysqli $con, string $query, string $types, ...$values) : mysqli_result|UnError
 	{
 		$stmt = self::query($con, $query, $types, ...$values);
 		if(!($stmt instanceof mysqli_stmt)) return $stmt;
 
 		$result = $stmt->get_result();
-		if(!$result) return ErrorSql::result();
+		if(!$result) return UnError::result();
 
 		return $result;
 	}
 
-	public static function actionQuery(mysqli $con, string $query, string $types, ...$values) : true|ErrorSql
+	public static function actionQuery(mysqli $con, string $query, string $types, ...$values) : true|UnError
 	{
 		$stmt = self::query($con, $query, $types, ...$values);
 		if(!($stmt instanceof mysqli_stmt)) return $stmt;

@@ -1,6 +1,6 @@
--- DROP DATABASE IF EXISTS proyecto_itsp;
--- CREATE DATABASE proyecto_itsp CHARACTER SET utf16 COLLATE utf16_spanish_ci;
--- USE proyecto_itsp;
+DROP DATABASE IF EXISTS proyecto_itsp;
+CREATE DATABASE proyecto_itsp CHARACTER SET utf16 COLLATE utf16_spanish_ci;
+USE proyecto_itsp;
 
 -- -- -- -- TABLAS - USUARIOS
 
@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS Usuarios;
 CREATE TABLE Usuarios (
 	id_usuario INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     ci VARCHAR(8) UNIQUE NOT NULL,
+    nombre VARCHAR(30) NOT NULL,
     apellido VARCHAR(30) NOT NULL,
     contrasena VARCHAR(255) NOT NULL,
     email VARCHAR(50) NOT NULL
@@ -30,11 +31,25 @@ CREATE TABLE Adscritos (
     id_usuario INT UNSIGNED NOT NULL
 );
 
--- Usuario especifico, categorizacion de la tabla Usuario
+-- Usuario intermedio el cual solicita reservas a recursos externos, categorizacion de la tabla Usuario
+DROP TABLE IF EXISTS Solicitantes;
+CREATE TABLE Solicitantes (
+	id_solicitante INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    id_usuario INT UNSIGNED NOT NULL
+);
+
+-- Usuario especifico, categorizacion de la tabla Solicitante
 DROP TABLE IF EXISTS Profesores;
 CREATE TABLE Profesores (
 	id_profesor INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    id_usuario INT UNSIGNED NOT NULL
+    id_solicitante INT UNSIGNED NOT NULL
+);
+
+-- Usuario especifico, categorizacion de la tabla Solicitante
+DROP TABLE IF EXISTS Auxiliares;
+CREATE TABLE Auxiliares (
+	id_auxiliar INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    id_solicitante INT UNSIGNED NOT NULL
 );
 
 -- -- -- -- TABLAS - CLASES
@@ -50,8 +65,8 @@ DROP TABLE IF EXISTS Periodos;
 CREATE TABLE Periodos (
 	id_periodo INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     numero INT UNSIGNED UNIQUE NOT NULL,
-    hora_entrada TIMESTAMP NOT NULL,
-    hora_salida TIMESTAMP NOT NULL
+    hora_entrada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    hora_salida TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Representa un dia de la semana, Ejemplo: Lunes, Martes, Miércoles, etc.
@@ -135,7 +150,7 @@ DROP TABLE IF EXISTS RecursosExternos;
 CREATE TABLE RecursosExternos (
 	id_recurso_externo INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     id_recurso INT UNSIGNED NOT NULL,
-    esta_disponible BOOL NOT NULL
+    esta_disponible BOOLEAN NOT NULL
 );
 
 DROP TABLE IF EXISTS RecursosInternos;
@@ -145,6 +160,13 @@ CREATE TABLE RecursosInternos (
     id_espacio INT UNSIGNED NULL -- puede quedar NULL si se borra espacio
 );
 
+DROP TABLE IF EXISTS ReservaRecursos;
+CREATE TABLE ReservaRecursos (
+	id_reserva INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    id_solicitante INT UNSIGNED NOT NULL,
+    id_recurso_externo INT UNSIGNED NOT NULL
+);
+
 -- -- -- -- RESTRICCIONES DE CLAVES FORANEAS
 
 -- ============================
@@ -152,25 +174,26 @@ CREATE TABLE RecursosInternos (
 -- ============================
 
 ALTER TABLE Alumnos 
-  -- Si se borra el usuario base, también se borra el alumno
   ADD CONSTRAINT fk__alumnos_usuarios FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE,
-  -- Si se borra el grupo, el alumno no se borra, simplemente queda sin grupo (NULL)
   ADD CONSTRAINT fk__alumnos_grupos FOREIGN KEY (id_grupo) REFERENCES Grupos(id_grupo) ON DELETE SET NULL;
 
 ALTER TABLE Adscritos 
-  -- Si se borra el usuario base, también se borra el adscrito
   ADD CONSTRAINT fk__adscritos_usuarios FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE;
 
+ALTER TABLE Solicitantes 
+  ADD CONSTRAINT fk__solicitantes_usuarios FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE;
+
 ALTER TABLE Profesores 
-  -- Si se borra el usuario base, también se borra el profesor
-  ADD CONSTRAINT fk__profesores_usuarios FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE;
+  ADD CONSTRAINT fk__profesores_solicitantes FOREIGN KEY (id_solicitante) REFERENCES Solicitantes(id_solicitante) ON DELETE CASCADE;
+
+ALTER TABLE Auxiliares 
+  ADD CONSTRAINT fk__auxiliares_solicitantes FOREIGN KEY (id_solicitante) REFERENCES Solicitantes(id_solicitante) ON DELETE CASCADE;
 
 -- ============================
 -- GRUPOS
 -- ============================
 
 ALTER TABLE Grupos 
-  -- Si se borra el adscrito, el grupo sigue existiendo pero sin adscrito asignado
   ADD CONSTRAINT fk__grupos_adscritos FOREIGN KEY (id_adscrito) REFERENCES Adscritos(id_adscrito) ON DELETE SET NULL;
 
 -- ============================
@@ -178,9 +201,7 @@ ALTER TABLE Grupos
 -- ============================
 
 ALTER TABLE Horas 
-  -- Si se borra el periodo, se eliminan las horas asociadas
   ADD CONSTRAINT fk__horas_periodos FOREIGN KEY (id_periodo) REFERENCES Periodos(id_periodo) ON DELETE CASCADE,
-  -- Si se borra el día, se eliminan las horas asociadas
   ADD CONSTRAINT fk__horas_dias FOREIGN KEY (id_dia) REFERENCES Dias(id_dia) ON DELETE CASCADE;
 
 -- ============================
@@ -188,9 +209,7 @@ ALTER TABLE Horas
 -- ============================
 
 ALTER TABLE Modulos 
-  -- Si se borra el periodo, se eliminan los módulos relacionados
   ADD CONSTRAINT fk__modulos_periodos FOREIGN KEY (id_periodo) REFERENCES Periodos(id_periodo) ON DELETE CASCADE,
-  -- Si se borra el día, se eliminan los módulos relacionados
   ADD CONSTRAINT fk__modulos_dias FOREIGN KEY (id_dia) REFERENCES Dias(id_dia) ON DELETE CASCADE;
 
 -- ============================
@@ -198,9 +217,7 @@ ALTER TABLE Modulos
 -- ============================
 
 ALTER TABLE Clases 
-  -- Si se borra el profesor, la clase sigue existiendo pero sin profesor asignado
   ADD CONSTRAINT fk__clases_profesores FOREIGN KEY (id_profesor) REFERENCES Profesores(id_profesor) ON DELETE SET NULL,
-  -- Si se borra la materia, se eliminan todas las clases de esa materia
   ADD CONSTRAINT fk__clases_materias FOREIGN KEY (id_materia) REFERENCES Materias(id_materia) ON DELETE CASCADE;
 
 -- ============================
@@ -208,7 +225,6 @@ ALTER TABLE Clases
 -- ============================
 
 ALTER TABLE Espacios 
-  -- Si se borra un tipo de espacio, también se eliminan todos los espacios de ese tipo
   ADD CONSTRAINT fk__espacios_tipos FOREIGN KEY (id_tipo) REFERENCES TiposEspacios(id_tipo) ON DELETE CASCADE;
 
 -- ============================
@@ -216,9 +232,7 @@ ALTER TABLE Espacios
 -- ============================
 
 ALTER TABLE ReservasDeEspacios 
-  -- Si se borra el profesor, la reserva queda registrada pero sin profesor (NULL)
   ADD CONSTRAINT fk__reservas_profesores FOREIGN KEY (id_profesor) REFERENCES Profesores(id_profesor) ON DELETE SET NULL,
-  -- Si se borra el espacio, también se eliminan las reservas asociadas
   ADD CONSTRAINT fk__reservas_espacios FOREIGN KEY (id_espacio) REFERENCES Espacios(id_espacio) ON DELETE CASCADE;
 
 -- ============================
@@ -226,15 +240,25 @@ ALTER TABLE ReservasDeEspacios
 -- ============================
 
 ALTER TABLE RecursosExternos 
-  -- Si se borra el recurso base, también se borra el recurso externo
   ADD CONSTRAINT fk__recursosExternos_recursos FOREIGN KEY (id_recurso) REFERENCES Recursos(id_recurso) ON DELETE CASCADE;
 
 ALTER TABLE RecursosInternos 
-  -- Si se borra el recurso base, también se borra el recurso interno
   ADD CONSTRAINT fk__recursosInternos_recursos FOREIGN KEY (id_recurso) REFERENCES Recursos(id_recurso) ON DELETE CASCADE,
-  -- Si se borra el espacio, el recurso interno sigue existiendo pero sin espacio asignado
   ADD CONSTRAINT fk__recursosInternos_espacios FOREIGN KEY (id_espacio) REFERENCES Espacios(id_espacio) ON DELETE SET NULL;
 
+-- Agregar clave foránea hacia Solicitantes
+ALTER TABLE ReservaRecursos
+ADD CONSTRAINT fk_reserva_solicitante
+FOREIGN KEY (id_solicitante)
+REFERENCES Solicitantes(id_solicitante)
+ON DELETE CASCADE;
+
+-- Agregar clave foránea hacia RecursosExternos
+ALTER TABLE ReservaRecursos
+ADD CONSTRAINT fk_reserva_recurso
+FOREIGN KEY (id_recurso_externo)
+REFERENCES RecursosExternos(id_recurso_externo)
+ON DELETE CASCADE;
 
 -- -- -- -- DATOS
 INSERT INTO TiposEspacios (nombre) VALUES 

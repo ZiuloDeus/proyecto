@@ -7,7 +7,7 @@ function conectarBd() : ?mysqli
     $dbname = "proyecto_itsp";
 
     // Create connection
-    $conn = mysqli_connect($servername, $username, $password, $dbname, 4000);
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
     mysqli_report(MYSQLI_REPORT_OFF);
 
     // Check connection
